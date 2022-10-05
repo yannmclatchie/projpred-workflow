@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 
 setwd("~/Desktop/projpred-workflow")
 root <- "./data/smoothed/spline_stability.csv"
@@ -149,78 +150,60 @@ df %>%
   theme_bw() 
 
 # Selected model ELPDs
-loo.elpd.delta <- df %>% group_by(n, rho, run) %>%
-  filter( (diff >= -4) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-spline.elpd.delta <- df %>% group_by(n, rho, run) %>%
-  filter( (spline.elpd.diff >= -4) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-mono.spline.elpd.delta <- df %>% group_by(n, rho, run) %>%
-  filter( (mono.spline.elpd.diff >= -4) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-loo.elpd.ci <- df %>% group_by(n, rho, run) %>%
-  filter( (elpd + se >= ref.loo.elpd) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-spline.elpd.ci <- df %>% group_by(n, rho, run) %>%
-  filter( (spline.elpd + spline.elpd.se >= ref.loo.elpd) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-mono.spline.elpd.ci <- df %>% group_by(n, rho, run) %>%
-  filter( (mono.spline.elpd + mono.spline.elpd.se >= ref.loo.elpd) ) %>%
-  arrange(desc(as.numeric(size))) %>%
-  slice(n = n()) %>%
-  dplyr::select(elpd, se)
-
-elpd_df <- data.frame(
-  n = loo.elpd.delta.size$n,
-  rho = loo.elpd.delta.size$rho,
-  run = loo.elpd.delta.size$run,
-  loo.elpd.delta.mean = loo.elpd.delta$elpd,
-  loo.elpd.delta.se = loo.elpd.delta$se,
-  spline.elpd.delta.mean = spline.elpd.delta$elpd,
-  spline.elpd.delta.se = spline.elpd.delta$se,
-  mono.spline.elpd.delta.mean = mono.spline.elpd.delta$elpd,
-  mono.spline.elpd.delta.se = mono.spline.elpd.delta$se,
-  loo.elpd.ci.mean = loo.elpd.ci$elpd,
-  loo.elpd.ci.se = loo.elpd.ci$se,
-  spline.elpd.ci.mean = spline.elpd.ci$elpd,
-  spline.elpd.ci.se = spline.elpd.ci$se,
-  mono.spline.elpd.ci.mean = mono.spline.elpd.ci$elpd,
-  mono.spline.elpd.ci.se = mono.spline.elpd.ci$se
+sel_df_long <- pivot_longer(
+  sel_df,
+  cols = - one_of(c('n','rho','run')),
+  names_to='Procedure',
+  values_to='size'
 )
-  
-  
-  reshape2::melt(id.vars = c("n", "rho", "run"))
-  group_by(n, rho, variable) %>% 
-  mutate(
-    mean_elpd = mean(value),
-    lower_size = quantile(value, probs = 0.32),
-    upper_size = quantile(value, probs = 0.68)
+
+sel_elpd_df <- inner_join(sel_df_long, df, by=c('n','rho','run','size')) %>%
+  select(n, rho, run, Procedure, elpd, se, diff, diff.se, ref.loo.elpd)
+
+sel_elpd_df %>% group_by(n, rho, Procedure) %>%
+  summarize(
+    mean_elpd = mean(elpd),
+    mean_se = mean(se)
   ) %>%
-  dplyr::select(n, rho, variable, mean_size, lower_size, upper_size) %>%
-  distinct() %>%
   ggplot() +
   geom_pointrange(
     aes(
-      x = variable, 
-      y = mean_size,
-      ymin = lower_size, 
-      ymax = upper_size, 
-      colour = variable
+      x = Procedure, 
+      y = mean_elpd,
+      ymin = mean_elpd - mean_se, 
+      ymax = mean_elpd + mean_se, 
+      colour = Procedure
     )
   ) +
   labs(colour="Procedure") +
   facet_grid(n ~ rho, scales = "free", labeller = "label_both") +
-  ylab("Size") +
+  ylab("ELPD") +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    axis.title.x=element_blank(), 
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank()
+  ) 
+
+sel_elpd_df %>% group_by(n, rho, Procedure) %>%
+  summarize(
+    mean_diff = mean(diff),
+    mean_diff_se = mean(diff.se)
+  ) %>%
+  ggplot() +
+  geom_pointrange(
+    aes(
+      x = Procedure, 
+      y = mean_diff,
+      ymin = mean_diff - mean_diff_se, 
+      ymax = mean_diff + mean_diff_se, 
+      colour = Procedure
+    )
+  ) +
+  labs(colour="Procedure") +
+  facet_grid(n ~ rho, scales = "free", labeller = "label_both") +
+  ylab("ELPD difference") +
   theme_bw() +
   theme(
     panel.grid.major = element_blank(),
