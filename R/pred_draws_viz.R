@@ -105,8 +105,8 @@ data
 
 # plot varying n and rho for different criteria
 # ---------------------------------------------
-data["ref.elpd"] <- data["elpd"] - data["elpd.diff"]
-data["ref.auc"] <- data["auc"] - data["auc.diff"]
+data["ref.elpd"] <- data["elpd.loo"] - data["elpd.diff"]
+data["ref.auc"] <- data["auc.loo"] - data["auc.diff"]
 
 # remove n = 50 case
 data <- data %>%
@@ -114,7 +114,7 @@ data <- data %>%
 
 # data wrangling
 criteria_data <- data %>% 
-  dplyr::select(c("n", "rho", "size", "auc", "ndraws_pred"))
+  dplyr::select(c("n", "rho", "size", "auc.loo", "ndraws_pred"))
 criteria_data
 
 hline_dat <- data %>% 
@@ -133,11 +133,11 @@ size_4_data <- data %>%
 size_4_data
 
 # plot the results
-p_ndraws_pred <- ggplot(data, aes(x = size, y = auc, colour = ndraws_pred)) +
+p_ndraws_pred <- ggplot(data, aes(x = size, y = auc.loo, colour = ndraws_pred)) +
   geom_ribbon(
     aes(
-      ymin = auc - auc.se, 
-      ymax = auc + auc.se, 
+      ymin = auc.loo - auc.se, 
+      ymax = auc.loo + auc.se, 
       fill = ndraws_pred, 
       colour = ndraws_pred
     ), 
@@ -160,7 +160,7 @@ p_ndraws_pred <- ggplot(data, aes(x = size, y = auc, colour = ndraws_pred)) +
   scale_colour_manual(values=c("#E69F00", "#56B4E9", "#009E73")) +
   scale_linetype_manual(values=c("solid", "longdash", "dotted")) +
   coord_cartesian(clip = 'off') +
-  ylab("RMSE") +
+  ylab("AUC") +
   xlab("Model size") +
   facet_grid(n ~ rho, scales = "free", labeller = "label_both") +
   theme_classic() +

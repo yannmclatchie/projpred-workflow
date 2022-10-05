@@ -1,5 +1,5 @@
 # load necessary libraries
-library(dplyr)
+library(tidyverse)
 library(brms)
 library(projpred)
 library(parallel)
@@ -20,30 +20,43 @@ experiment <- function(rho, n){
     "y" = indep_data[, names(indep_data) %in% c("y")]
   )
   
-  # fit the BRMS model
+  # fit the BRMS model with an R2D2 prior
   fit <- brm(
     formula = "y ~ .", 
     family = "gaussian", 
-    prior = set_prior("horseshoe(11)"), 
+    prior = set_prior(R2D2(mean_R2 = 0.25, prec_R2 = 20, cons_D2 = 0.25)), 
     data = data
   )
   
   # perform projection predictive inference
-  vs <- varsel(
+  vs_insample <- varsel(
+    fit, 
+    method = "forward", 
+    nterms_max = 25
+  )
+  
+  # perform projection predictive inference
+  vs_test <- varsel(
     fit, 
     d_test = d_test,
     method = "forward", 
     nterms_max = 25
   )
-
+  
   # compute submodel summaries
-  df <- summary(vs, stats = c("elpd", "rmse"))$selection
+  df <- summary(vs_insample, stats = c("mlpd"))$selection
   df["rho"] <- rho
   df["n"] <- n
-  df["loo_wts"] <- exp(df["elpd"]) / sum(exp(df["elpd"]))
-
+  df["data"] <- "train"
+  
+  df_test <- summary(vs_test, stats = c("mlpd"))$selection
+  df_test["rho"] <- rho
+  df_test["n"] <- n
+  df_test["data"] <- "test"
+  df <- rbind(df, df_test)
+  
   # write the table
-  csv_name <- paste0("./data/elbows/",n,"n,",rho,"rho.csv")
+  csv_name <- paste0("./data/bma-proj/",n,"n,",rho,"rho.csv")
   ff <- file(csv_name, open="w")
   write.table(df, file = ff, sep = ",", row.names = FALSE)
   close(ff)
