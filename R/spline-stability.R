@@ -1,8 +1,11 @@
 # check if scam if installed
 if (!require("scam")) install.packages("scam", repos = "http://cran.us.r-project.org"); library(scam)
 
+# set seed for reproducibility
+set.seed(210426)
+
 # load necessary libraries
-library(dplyr)
+library(tidyverse)
 library(brms)
 library(projpred)
 library(parallel)
@@ -11,12 +14,13 @@ library(gamm4)
 # load data generating scripts
 source("./R/generate.R")
 
+# set number of repetitions 
 num_runs <- 10
 
 # define experiment
 experiment <- function(rho, n){
   
-  df <- data.frame(matrix(ncol = 15, nrow = 0))
+  df <- data.frame(matrix(ncol = 18, nrow = 0))
   
   for (run in 1:num_runs) {
     # simulate data
@@ -65,59 +69,9 @@ experiment <- function(rho, n){
         mono.spline.elpd.diff = mono.spline.diff$fit*run_df[,'diff.se'],
         mono.spline.elpd.diff.se = sqrt(mono.spline.diff$sig2)*run_df[,'diff.se']
       )
-    
-    # # select model size for each method
-    # loo.elpd.delta.size <- run_df %>%
-    #   filter( (diff >= -4) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # spline.elpd.delta.size <- run_df %>%
-    #   filter( (spline.elpd.diff >= -4) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # mono.spline.elpd.delta.size <- run_df %>%
-    #   filter( (mono.spline.elpd.diff >= -4) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # loo.elpd.ci.size <- run_df %>%
-    #   filter( (elpd + se >= ref.loo.elpd) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # spline.elpd.ci.size <- run_df %>%
-    #   filter( (spline.elpd + spline.elpd.se >= ref.loo.elpd) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # mono.spline.elpd.ci.size <- run_df %>%
-    #   filter( (mono.spline.elpd + mono.spline.elpd.se >= ref.loo.elpd) ) %>%
-    #   arrange(desc(as.numeric(size))) %>%
-    #   slice(n = n()) %>%
-    #   dplyr::select(size)
-    # loo.elpd.switch.size <- min(loo.elpd.ci.size, loo.elpd.delta.size)
-    # spline.elpd.switch.size <- min(spline.elpd.ci.size, spline.elpd.delta.size)
-    # mono.spline.elpd.switch.size <- min(
-    #   mono.spline.elpd.ci.size, mono.spline.elpd.delta.size
-    # )
-    # sel_df <- data.frame(
-    #   loo.elpd.delta = loo.elpd.delta.size,
-    #   spline.elpd.delta = spline.elpd.delta.size,
-    #   mono.spline.elpd.delta = mono.spline.elpd.delta.size,
-    #   loo.elpd.ci = loo.elpd.ci.size,
-    #   spline.elpd.ci = spline.elpd.ci.size,
-    #   mono.spline.elpd.ci = mono.spline.elpd.ci.size,
-    #   loo.elpd.switch = loo.elpd.switch.size,
-    #   spline.elpd.switch = spline.elpd.switch.size,
-    #   mono.spline.elpd.switch = mono.spline.elpd.switch.size
-    # )
-    
-    # # melt data and add run details
-    # res <- reshape2::melt(sel_df, variable.name = "procedure", value.name = "size")
-    # res["n"] <- n
-    # res["rho"] <- rho
+    run_df["n"] <- n
+    run_df["rho"] <- rho
+    run_df["run"] <- run
     
     # update results
     df <- rbind(df, run_df)

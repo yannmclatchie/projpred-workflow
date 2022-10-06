@@ -62,13 +62,12 @@ sel_df <- data.frame(
       mono.spline.elpd.ci, mono.spline.elpd.delta
     )
   )
-print(head(sel_df))
 
 ## Plotting
 ## --------
 
 # model selection stability
-sel_df %>%
+p_sel_stability <- sel_df %>%
   reshape2::melt(id.vars = c("n", "rho", "run")) %>%
   group_by(n, rho, variable) %>% 
   mutate(
@@ -98,6 +97,11 @@ sel_df %>%
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank()
   ) 
+p_sel_stability
+ggsave(
+  plot = p_sel_stability, 
+  filename = "./img/spline_selection_stability.pdf"
+)
 
 # ELPDs
 means = df %>% 
@@ -108,7 +112,7 @@ means = df %>%
     mean_mono_spline = mean(mono.spline.elpd)
   )
 
-df %>%
+p_smoothed_elpds <- df %>%
   ggplot() + 
     geom_line(aes(x = size, y = elpd, group = run, color = 'LOO'), 
               size = 0.5, alpha = 0.15) +
@@ -123,6 +127,11 @@ df %>%
     xlab("Size") +
     ylab("ELPD") +
     theme_bw() 
+p_smoothed_elpds
+ggsave(
+  plot = p_smoothed_elpds, 
+  filename = "./img/smoothed_elpd.pdf"
+)
 
 # ELPD diffs
 means = df %>% 
@@ -133,7 +142,7 @@ means = df %>%
     mean_mono_spline = mean(mono.spline.elpd.diff)
   )
 
-df %>%
+p_smoothed_elpd_diffs <- df %>%
   ggplot() + 
   geom_line(aes(x = size, y = diff, group = run, color = 'LOO'), 
             size = 0.5, alpha = 0.15) +
@@ -148,6 +157,11 @@ df %>%
   xlab("Size") +
   ylab("ELPD difference") +
   theme_bw() 
+p_smoothed_elpd_diffs
+ggsave(
+  plot = p_smoothed_elpd_diffs, 
+  filename = "./img/smoothed_elpd_diff.pdf"
+)
 
 # Selected model ELPDs
 sel_df_long <- pivot_longer(
@@ -160,7 +174,7 @@ sel_df_long <- pivot_longer(
 sel_elpd_df <- inner_join(sel_df_long, df, by=c('n','rho','run','size')) %>%
   select(n, rho, run, Procedure, elpd, se, diff, diff.se, ref.loo.elpd)
 
-sel_elpd_df %>% group_by(n, rho, Procedure) %>%
+p_sel_elpd <- sel_elpd_df %>% group_by(n, rho, Procedure) %>%
   summarize(
     mean_elpd = mean(elpd),
     mean_se = mean(se)
@@ -185,8 +199,13 @@ sel_elpd_df %>% group_by(n, rho, Procedure) %>%
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank()
   ) 
+p_sel_elpd
+ggsave(
+  plot = p_sel_elpd, 
+  filename = "./img/sel_elpd.pdf"
+)
 
-sel_elpd_df %>% group_by(n, rho, Procedure) %>%
+p_sel_elpd_diff <- sel_elpd_df %>% group_by(n, rho, Procedure) %>%
   summarize(
     mean_diff = mean(diff),
     mean_diff_se = mean(diff.se)
@@ -211,3 +230,8 @@ sel_elpd_df %>% group_by(n, rho, Procedure) %>%
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank()
   ) 
+p_sel_elpd_diff
+ggsave(
+  plot = p_sel_elpd_diff, 
+  filename = "./img/sel_elpd_diff.pdf"
+)
