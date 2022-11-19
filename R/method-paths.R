@@ -47,6 +47,14 @@ vs_l1 <- cv_varsel(
 )
 
 # plot the stability of selection process
-## ----
-## TODO
-## ----
+source("./R/aux/projpredpct.R")
+source("./R/aux/gg_pct_solution_terms_cv.R")
+( gg_fw <- gg_pct_solution_terms_cv(vs_forward) )
+( gg_l1 <- gg_pct_solution_terms_cv(vs_l1) )
+source("./R/aux/aux_plotting.R")
+save_tikz_plot(plot = gg_fw,
+               filename = "./tex/pct_solution_terms_cv_forward.tex",
+               width = 6)
+save_tikz_plot(plot = gg_l1,
+               filename = "./tex/pct_solution_terms_cv_l1.tex",
+               width = 6)
