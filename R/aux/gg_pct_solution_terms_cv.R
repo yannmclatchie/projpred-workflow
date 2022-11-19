@@ -16,10 +16,10 @@ gg_pct_solution_terms_cv <- function(cvvs) {
   if (identical(rows, 0)) rows <- pct$var[1]
   pct$sel <- (pct$.size == col) & (pct$var %in% rows)
   brks <- sort(unique(as.numeric(pct$val_grp)) + 1)
-  ggobj <- ggplot(pct, aes_(x = ~.size, y = ~var)) +
-    geom_tile(aes_(fill = ~val_grp, color = ~sel),
-              width = 1, height = 0.9, size = 1) +
-    geom_text(aes_(label = ~val, fontface = ~sel+1)) +
+  ggobj <- ggplot(pct, aes(x = .size, y = var)) +
+    geom_tile(aes(fill = val_grp, color = sel),
+              width = 1, height = 0.9, linewidth = 1) +
+    geom_text(aes(label = val, fontface = sel+1)) +
     coord_cartesian(expand = FALSE) +
     scale_y_discrete(limits = rev(levels(pct$var))) +
     scale_x_discrete(limits = factor(seq(1,col))) +
