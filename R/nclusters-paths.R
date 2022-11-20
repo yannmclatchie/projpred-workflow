@@ -39,22 +39,43 @@ vs_10_clust <- cv_varsel(
   fit,
   method = "forward",
   nclusters = 10,
+  nclusters_pred = 10,
   seed = SEED
 )
+saveRDS(vs_10_clust, "vs_10_clust.rds")
+# vs_10_clust <- readRDS("vs_10_clust.rds")
 vs_50_clust <- cv_varsel(
   fit,
   method = "forward",
   nclusters = 50,
+  nclusters_pred = 10,
   seed = SEED
 )
+saveRDS(vs_50_clust, "vs_50_clust.rds")
+# vs_50_clust <- readRDS("vs_50_clust.rds")
 vs_200_clust <- cv_varsel(
   fit,
   method = "forward",
   nclusters = 200,
+  nclusters_pred = 10,
   seed = SEED
 )
+saveRDS(vs_200_clust, "vs_200_clust.rds")
+# vs_200_clust <- readRDS("vs_200_clust.rds")
 
 # plot the stability of selection process
-## ----
-## TODO
-## ----
+source("./R/aux/projpredpct.R")
+source("./R/aux/gg_pct_solution_terms_cv.R")
+( gg_10 <- gg_pct_solution_terms_cv(vs_10_clust) )
+( gg_50 <- gg_pct_solution_terms_cv(vs_50_clust) )
+( gg_200 <- gg_pct_solution_terms_cv(vs_200_clust) )
+source("./R/aux/aux_plotting.R")
+save_tikz_plot(plot = gg_10,
+               filename = "./tex/pct_solution_terms_cv_10.tex",
+               width = 6)
+save_tikz_plot(plot = gg_50,
+               filename = "./tex/pct_solution_terms_cv_50.tex",
+               width = 6)
+save_tikz_plot(plot = gg_200,
+               filename = "./tex/pct_solution_terms_cv_200.tex",
+               width = 6)
