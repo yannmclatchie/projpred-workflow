@@ -86,6 +86,6 @@ save_tikz_plot(plot = gg_200,
 save_tikz_plot(plot = gg_all,
                filename = "./tex/pct_solution_terms_cv_10_50_200.tex",
                width = 6)
-save_tikz_plot(plot = gg_200,
+save_tikz_plot(plot = gg_all_fixedY,
                filename = "./tex/pct_solution_terms_cv_all_fixedY.tex",
                width = 6)
