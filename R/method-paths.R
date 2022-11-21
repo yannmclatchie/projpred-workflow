@@ -57,10 +57,15 @@ source("./R/aux/projpredpct.R")
 source("./R/aux/gg_pct_solution_terms_cv.R")
 ( gg_fw <- gg_pct_solution_terms_cv(vs_forward) )
 ( gg_l1 <- gg_pct_solution_terms_cv(vs_l1) )
+library(patchwork)
+( gg_fw_l1 <- gg_fw | gg_l1 )
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(plot = gg_fw,
                filename = "./tex/pct_solution_terms_cv_forward.tex",
                width = 6)
 save_tikz_plot(plot = gg_l1,
                filename = "./tex/pct_solution_terms_cv_l1.tex",
+               width = 6)
+save_tikz_plot(plot = gg_fw_l1,
+               filename = "./tex/pct_solution_terms_cv_forward_l1.tex",
                width = 6)
