@@ -1,5 +1,4 @@
 # load necessary libraries
-library(dplyr)
 library(brms)
 library(projpred)
 library(parallel)
@@ -7,60 +6,76 @@ library(parallel)
 # set seed
 SEED <- 1513306866
 
-# load data 
+# load data
 df <- read.table("./data/bodyfat/bodyfat.txt", header = T, sep = ";")
 df[,4:19] <- scale(df[,4:19])
 # no-one can have 0% body fat
 df <- df[df$siri>0,]
-y <- df[,"siri"]
 df <- as.data.frame(df)
 ( n <- nrow(df) )
 
 # define the covariates and variate
-pred <- c("age", "weight", "height", "neck", "chest", "abdomen", "hip", 
+pred <- c("age", "weight", "height", "neck", "chest", "abdomen", "hip",
           "thigh", "knee", "ankle", "biceps", "forearm", "wrist")
 target <- "siri"
 formula <- formula(paste("siri ~", paste(pred, collapse = " + ")))
-( p <- length(pred) )
 
 # fit the reference model
-p0 <- 5 # prior guess for the number of relevant variables
-tau0 <- p0/(p-p0) * 1/sqrt(n)
+options(mc.cores = detectCores(logical = FALSE))
 r2d2_prior <- set_prior(R2D2(mean_R2 = 0.3, prec_R2 = 3))
 # indep_gauss_prior <- set_prior("normal(0, 2.5)", class = "b")
 fit <- brm(
-  formula, 
-  data = df, 
+  formula,
+  data = df,
   prior = r2d2_prior, # prior = indep_gauss_prior,
-  seed = SEED, 
-  refresh = 0
+  seed = SEED,
+  refresh = 0,
+  file = "bodyfat_fit",
+  file_refit = "on_change"
 )
 
 # perform projpred with forward and L1 search
 vs_10_clust <- cv_varsel(
-  fit, 
-  method = 'forward',
+  fit,
+  method = "forward",
   nclusters = 10,
-  seed = SEED, 
-  verbose = FALSE
+  nclusters_pred = 10,
+  seed = SEED
 )
+saveRDS(vs_10_clust, "vs_10_clust.rds")
+# vs_10_clust <- readRDS("vs_10_clust.rds")
 vs_50_clust <- cv_varsel(
-  fit, 
-  method = 'forward',
+  fit,
+  method = "forward",
   nclusters = 50,
-  seed = SEED, 
-  verbose = FALSE
+  nclusters_pred = 10,
+  seed = SEED
 )
+saveRDS(vs_50_clust, "vs_50_clust.rds")
+# vs_50_clust <- readRDS("vs_50_clust.rds")
 vs_200_clust <- cv_varsel(
-  fit, 
-  method = 'forward',
+  fit,
+  method = "forward",
   nclusters = 200,
-  seed = SEED, 
-  verbose = FALSE
+  nclusters_pred = 10,
+  seed = SEED
 )
+saveRDS(vs_200_clust, "vs_200_clust.rds")
+# vs_200_clust <- readRDS("vs_200_clust.rds")
 
 # plot the stability of selection process
-## ----
-## TODO
-## ----
-
+source("./R/aux/projpredpct.R")
+source("./R/aux/gg_pct_solution_terms_cv.R")
+( gg_10 <- gg_pct_solution_terms_cv(vs_10_clust) )
+( gg_50 <- gg_pct_solution_terms_cv(vs_50_clust) )
+( gg_200 <- gg_pct_solution_terms_cv(vs_200_clust) )
+source("./R/aux/aux_plotting.R")
+save_tikz_plot(plot = gg_10,
+               filename = "./tex/pct_solution_terms_cv_10.tex",
+               width = 6)
+save_tikz_plot(plot = gg_50,
+               filename = "./tex/pct_solution_terms_cv_50.tex",
+               width = 6)
+save_tikz_plot(plot = gg_200,
+               filename = "./tex/pct_solution_terms_cv_200.tex",
+               width = 6)

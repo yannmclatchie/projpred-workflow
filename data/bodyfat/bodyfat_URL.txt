@@ -1,0 +1,1 @@
+https://github.com/avehtari/modelselection/blob/ad0e10ce7d3a47de560609db7abe83777eed28bc/bodyfat.txt
