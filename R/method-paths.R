@@ -41,12 +41,16 @@ vs_forward <- cv_varsel(
   nclusters_pred = 10,
   seed = SEED
 )
+saveRDS(vs_forward, "vs_forward.rds")
+# vs_forward <- readRDS("vs_forward.rds")
 vs_l1 <- cv_varsel(
   fit,
   method = "l1",
   nclusters_pred = 10,
   seed = SEED
 )
+saveRDS(vs_l1, "vs_l1.rds")
+# vs_l1 <- readRDS("vs_l1.rds")
 
 # plot the stability of selection process
 source("./R/aux/projpredpct.R")
