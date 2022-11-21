@@ -59,7 +59,7 @@ source("./R/aux/gg_pct_solution_terms_cv.R")
 ( gg_l1 <- gg_pct_solution_terms_cv(vs_l1) )
 library(patchwork)
 ( gg_fw_l1 <- gg_fw | gg_l1 )
-y_fw_order <- gg_fw_build$layout$panel_scales_y[[1]]$range$range
+y_fw_order <- ggplot_build(gg_fw)$layout$panel_scales_y[[1]]$range$range
 ( gg_fw_l1_fixedY <- (gg_fw | gg_l1) & scale_y_discrete(limits = y_fw_order) )
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(plot = gg_fw,
