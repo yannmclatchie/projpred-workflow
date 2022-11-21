@@ -38,11 +38,13 @@ fit <- brm(
 vs_forward <- cv_varsel(
   fit,
   method = "forward",
+  nclusters_pred = 10,
   seed = SEED
 )
 vs_l1 <- cv_varsel(
   fit,
   method = "l1",
+  nclusters_pred = 10,
   seed = SEED
 )
 
