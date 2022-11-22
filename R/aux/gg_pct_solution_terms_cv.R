@@ -24,11 +24,9 @@ gg_pct_solution_terms_cv <- function(cvvs) {
     scale_y_discrete(limits = rev(levels(pct$var))) +
     scale_x_discrete(limits = factor(seq(1,col))) +
     scale_color_manual(values = c("white", "black")) +
-    labs(x = "Model size", y = "",
-         title = "Fraction of cv-folds that select the given variable") +
+    labs(x = "Model size", y = "") +
     scale_fill_manual(breaks = brks, values = col_brks$pal[brks]) +
     theme_proj() +
-    theme(legend.position = "none",
-          axis.text.y = element_text(angle = 45))
+    theme(legend.position = "none")
   return(ggobj)
 }
