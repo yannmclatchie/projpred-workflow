@@ -35,44 +35,50 @@ fit <- brm(
 )
 
 # perform projpred with forward and L1 search
-vs_10_clust <- cv_varsel(
-  fit,
-  method = "forward",
-  nclusters = 10,
-  nclusters_pred = 10,
-  seed = SEED
-)
-saveRDS(vs_10_clust, "vs_10_clust.rds")
-# vs_10_clust <- readRDS("vs_10_clust.rds")
-vs_50_clust <- cv_varsel(
-  fit,
-  method = "forward",
-  nclusters = 50,
-  nclusters_pred = 10,
-  seed = SEED
-)
-saveRDS(vs_50_clust, "vs_50_clust.rds")
-# vs_50_clust <- readRDS("vs_50_clust.rds")
-vs_200_clust <- cv_varsel(
-  fit,
-  method = "forward",
-  nclusters = 200,
-  nclusters_pred = 10,
-  seed = SEED
-)
-saveRDS(vs_200_clust, "vs_200_clust.rds")
-# vs_200_clust <- readRDS("vs_200_clust.rds")
+#vs_10_clust <- cv_varsel(
+#  fit,
+#  method = "forward",
+#  nclusters = 10,
+#  nclusters_pred = 10,
+#  seed = SEED
+#)
+#saveRDS(vs_10_clust, "data/vs_10_clust.rds")
+vs_10_clust <- readRDS("data/vs_10_clust.rds")
+#vs_50_clust <- cv_varsel(
+#  fit,
+#  method = "forward",
+#  nclusters = 50,
+#  nclusters_pred = 10,
+#  seed = SEED
+#)
+#saveRDS(vs_50_clust, "data/vs_50_clust.rds")
+vs_50_clust <- readRDS("vs_50_clust.rds")
+#vs_200_clust <- cv_varsel(
+#  fit,
+#  method = "forward",
+#  nclusters = 200,
+#  nclusters_pred = 10,
+#  seed = SEED
+#)
+#saveRDS(vs_200_clust, "data/vs_200_clust.rds")
+vs_200_clust <- readRDS("data/vs_200_clust.rds")
 
 # plot the stability of selection process
 source("./R/aux/projpredpct.R")
 source("./R/aux/gg_pct_solution_terms_cv.R")
-( gg_10 <- gg_pct_solution_terms_cv(vs_10_clust) )
-( gg_50 <- gg_pct_solution_terms_cv(vs_50_clust) )
-( gg_200 <- gg_pct_solution_terms_cv(vs_200_clust) )
+( gg_10 <- gg_pct_solution_terms_cv(vs_10_clust) 
+  & labs(subtitle = "10 clusters"))
+( gg_50 <- gg_pct_solution_terms_cv(vs_50_clust) 
+  & theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
+  & labs(subtitle = "50 clusters"))
+( gg_200 <- gg_pct_solution_terms_cv(vs_200_clust) 
+  & labs(subtitle = "200 clusters"))
 library(patchwork)
 ( gg_all <- gg_10 / gg_50 / gg_200 )
 y_10_order <- ggplot_build(gg_10)$layout$panel_scales_y[[1]]$range$range
-( gg_all_fixedY <- (gg_10 / gg_50 / gg_200) & scale_y_discrete(limits = y_10_order) )
+( gg_all_fixedY <- ((gg_10 + gg_50) / (gg_200)) 
+  & scale_y_discrete(limits = y_10_order) )
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(plot = gg_10,
                filename = "./tex/pct_solution_terms_cv_10.tex",
@@ -88,4 +94,5 @@ save_tikz_plot(plot = gg_all,
                width = 6)
 save_tikz_plot(plot = gg_all_fixedY,
                filename = "./tex/pct_solution_terms_cv_all_fixedY.tex",
-               width = 6)
+               width = 6,
+               height = 6)
