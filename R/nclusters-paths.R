@@ -69,6 +69,10 @@ source("./R/aux/gg_pct_solution_terms_cv.R")
 ( gg_10 <- gg_pct_solution_terms_cv(vs_10_clust) )
 ( gg_50 <- gg_pct_solution_terms_cv(vs_50_clust) )
 ( gg_200 <- gg_pct_solution_terms_cv(vs_200_clust) )
+library(patchwork)
+( gg_all <- gg_10 / gg_50 / gg_200 )
+y_10_order <- ggplot_build(gg_10)$layout$panel_scales_y[[1]]$range$range
+( gg_all_fixedY <- (gg_10 / gg_50 / gg_200) & scale_y_discrete(limits = y_10_order) )
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(plot = gg_10,
                filename = "./tex/pct_solution_terms_cv_10.tex",
@@ -78,4 +82,10 @@ save_tikz_plot(plot = gg_50,
                width = 6)
 save_tikz_plot(plot = gg_200,
                filename = "./tex/pct_solution_terms_cv_200.tex",
+               width = 6)
+save_tikz_plot(plot = gg_all,
+               filename = "./tex/pct_solution_terms_cv_10_50_200.tex",
+               width = 6)
+save_tikz_plot(plot = gg_all_fixedY,
+               filename = "./tex/pct_solution_terms_cv_all_fixedY.tex",
                width = 6)
