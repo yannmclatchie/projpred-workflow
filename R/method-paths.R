@@ -35,32 +35,40 @@ fit <- brm(
 )
 
 # perform projpred with forward and L1 search
-vs_forward <- cv_varsel(
-  fit,
-  method = "forward",
-  nclusters_pred = 10,
-  seed = SEED
-)
-saveRDS(vs_forward, "vs_forward.rds")
-# vs_forward <- readRDS("vs_forward.rds")
-vs_l1 <- cv_varsel(
-  fit,
-  method = "l1",
-  nclusters_pred = 10,
-  seed = SEED
-)
-saveRDS(vs_l1, "vs_l1.rds")
-# vs_l1 <- readRDS("vs_l1.rds")
+#vs_forward <- cv_varsel(
+#  fit,
+#  method = "forward",
+#  nclusters_pred = 10,
+#  seed = SEED
+#)
+#saveRDS(vs_forward, "data/vs_forward.rds")
+#vs_forward <- readRDS("data/vs_forward.rds")
+#vs_l1 <- cv_varsel(
+#  fit,
+#  method = "l1",
+#  nclusters_pred = 10,
+#  seed = SEED
+#)
+#saveRDS(vs_l1, "data/vs_l1.rds")
+vs_l1 <- readRDS("data/vs_l1.rds")
 
 # plot the stability of selection process
 source("./R/aux/projpredpct.R")
 source("./R/aux/gg_pct_solution_terms_cv.R")
-( gg_fw <- gg_pct_solution_terms_cv(vs_forward) )
-( gg_l1 <- gg_pct_solution_terms_cv(vs_l1) )
+( gg_fw <- gg_pct_solution_terms_cv(vs_forward) 
+  & labs(subtitle = "Forward search"))
+( gg_l1 <- gg_pct_solution_terms_cv(vs_l1) 
+  & theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank()) 
+  & labs(subtitle = "$L_1$ search"))
+
 library(patchwork)
 ( gg_fw_l1 <- gg_fw | gg_l1 )
 y_fw_order <- ggplot_build(gg_fw)$layout$panel_scales_y[[1]]$range$range
-( gg_fw_l1_fixedY <- (gg_fw | gg_l1) & scale_y_discrete(limits = y_fw_order) )
+gg_fw_l1_fixedY <- (gg_fw + gg_l1) & scale_y_discrete(limits = y_fw_order)
+gg_fw_l1_fixedY
+
+
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(plot = gg_fw,
                filename = "./tex/pct_solution_terms_cv_forward.tex",
