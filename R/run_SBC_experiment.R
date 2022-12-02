@@ -24,14 +24,14 @@ p <- add_argument(p, "--path", help="Path were results should be saved", default
 args <- parse_args(p)
 
 ## ----- Run experiment -------
-args <- list()
-args$N_sim <- 1
-args$N <- 100
-args$n_rel <- 10
-args$n_irrel <- 10
-args$prior_ref <- 'normal'
-args$experiment_suffix <- ''
-args$path <- 'results/'
+# args <- list()
+# args$N_sim <- 1
+# args$N <- 100
+# args$n_rel <- 10
+# args$n_irrel <- 10
+# args$prior_ref <- 'normal'
+# args$experiment_suffix <- ''
+# args$path <- 'results/'
 
 experiment <- run_SBC_experiment(N_sim=args$N_sim,N=args$N,n_rel=args$n_rel,n_irrel=args$n_irrel,prior_ref=args$prior_ref)
 

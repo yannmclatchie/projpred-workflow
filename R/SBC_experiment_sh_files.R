@@ -10,7 +10,7 @@ create_sh_file <- function(mem,time,output,script){
   return(str)
 }
 
-get_SBC_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,validate_search,experiment_suffix,dir){
+get_SBC_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,validate_search,experiment_suffix,path){
   experiment_name <- paste0(N_sim,'sim_',
                             N,'N_',
                             n_rel,'rel_',
@@ -21,15 +21,16 @@ get_SBC_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,vali
   if(!dir.exists(file.path(sh_dir))){
     dir.create(file.path(sh_dir))
   }
-  path <- paste0(sh_dir,experiment_name,'.sh')
+  sh_path <- paste0(sh_dir,experiment_name,'.sh')
   sh_file_str <- create_sh_file(mem='5G',time=time,output=paste0(experiment_name,'.out'),
-                             script=paste0('../run_SBC_experiment.R',
-                                           ' --N_sim ',N_sim,
-                                           ' --N ',N,
-                                           ' --n_rel ',n_rel,' --n_irrel ',n_irrel,
-                                           ' --prior_ref ',prior_ref,
-                                           ifelse(experiment_suffix!='',paste0(' --suffix ',experiment_suffix),'')))
-  cat(sh_file_str,file=path)
+                                script=paste0('../run_SBC_experiment.R',
+                                              ' --N_sim ',N_sim,
+                                              ' --N ',N,
+                                              ' --n_rel ',n_rel,' --n_irrel ',n_irrel,
+                                              ' --prior_ref ',prior_ref,
+                                              ifelse(experiment_suffix!='',paste0(' --suffix ',experiment_suffix),''),
+                                              ' --path ',path))
+  cat(sh_file_str,file=sh_path)
 }
 
 N_sim <- 300
@@ -41,11 +42,12 @@ batch_time <- '24:00:00'
 batch_size <- 5
 suffix='batch'
 count=0
+path <- 'results/'
 
 for(pri in prior_refs){
   for(i in 1:(N_sim/batch_size)){
     count=count+1
-    get_SBC_experiment_sh_file(time=batch_time,N=N,n_rel=n_rel,n_irrel=n_irrel,prior_ref=pri,N_sim=batch_size,experiment_suffix=paste(suffix,i,sep='_'))
+    get_SBC_experiment_sh_file(time=batch_time,N=N,n_rel=n_rel,n_irrel=n_irrel,prior_ref=pri,N_sim=batch_size,experiment_suffix=paste(suffix,i,sep='_'),path=path)
   }
 }
 
