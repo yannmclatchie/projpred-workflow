@@ -28,7 +28,7 @@ get_posterior_summary <- function(post_dat){
 }
 
 
-run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref,validate_search){
+run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
   covars <- paste0('x',seq_len(args$n_rel+args$n_irrel))
   rel_covars <- paste0('x',seq_len(n_rel))
   rel_covars_str <- paste(rel_covars,collapse='+')
@@ -73,7 +73,7 @@ run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref,validate_search){
     #calculate loo diagnostics for reference model
     loo_mod_ref <- loo(mod_ref)
     #Projpred variable selection using kfold cross validation
-    cv_select_prj <- cv_varsel(mod_ref,cv_method='kfold',method='forward',validate_search=validate_search,nterms_max=30,search_terms=paste('t + ',covars))
+    cv_select_prj <- cv_varsel(mod_ref,cv_method='kfold',method='forward',validate_search=T,nterms_max=30,search_terms=paste('t + ',covars))
     selected_vars_prj <- sort(solution_terms(cv_select_prj)[seq_len(suggest_size(cv_select_prj))])
     #In case nothing was selected, add t to enforce choosing t in the model
     selected_vars_prj <- unique(c('t',unlist(strsplit(selected_vars_prj,split=' \\+ '))))
