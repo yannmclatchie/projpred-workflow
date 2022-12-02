@@ -28,7 +28,7 @@ get_SBC_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,vali
                                               ' --N ',N,
                                               ' --n_rel ',n_rel,' --n_irrel ',n_irrel,
                                               ' --prior_ref ',prior_ref,
-                                              ifelse(experiment_suffix!='',paste0(' --suffix ',experiment_suffix),''),
+                                              ifelse(experiment_suffix!='',paste0(' --experiment_suffix ',experiment_suffix),''),
                                               ' --path ',path))
   cat(sh_file_str,file=sh_path)
 }
