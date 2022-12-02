@@ -2,7 +2,7 @@
 #move from sbatch directory to project directory
 setwd('../../')
 #Tell cluster where R is located
-R_image_path <- '../../R/x86_64-pc-linux-gnu-library/4.1/'
+R_image_path <- '../R/x86_64-pc-linux-gnu-library/4.1/'
 .libPaths(R_image_path)
 library(brms)
 library(projpred)
@@ -18,7 +18,6 @@ p <- add_argument(p, "--n_irrel", help="Integer determining the number of irrele
 p <- add_argument(p, "--prior_ref", help="Character denoting prior of the beta coefficients in the reference model.
                                           Supports values 'normal' and 'normalr2d2', where normal r2d2 refers to a
                                           normal prior on treatment and r2d2 on remainin covariates", default='normal',type="character")
-p <- add_argument(p, "--validate_search", help="Boolean determining whether to cross-validate projpred search path", default=FALSE,type="logical")
 p <- add_argument(p, "--experiment_suffix", help="Suffix to add to file path to label experiment.", default="",type="character")
 p <- add_argument(p, "--path", help="Path were results should be saved", default="",type="character")
 
@@ -31,18 +30,16 @@ args$N <- 100
 args$n_rel <- 10
 args$n_irrel <- 10
 args$prior_ref <- 'normal'
-args$validate_search <- TRUE
 args$experiment_suffix <- ''
 args$path <- 'results/'
 
-experiment <- run_SBC_experiment(N_sim=args$N_sim,N=args$N,n_rel=args$n_rel,n_irrel=args$n_irrel,prior_ref=args$prior_ref,validate_search=args$validate_search)
+experiment <- run_SBC_experiment(N_sim=args$N_sim,N=args$N,n_rel=args$n_rel,n_irrel=args$n_irrel,prior_ref=args$prior_ref)
 
 experiment_name <- paste0(args$N_sim,'sim_',
                           args$N,'N_',
                           args$n_rel,'rel_',
                           args$n_irrel,'irrel_',
                           args$prior_ref,'prior_',
-                          args$validate_search,'validated',
                           ifelse(args$experiment_suffix!='',paste0('_',args$experiment_suffix),''))
 write.table(experiment$treatment_summary,file=paste0(args$path,'treatment_summary_',experiment_name,'.tsv'),quote=F,row.names=F,sep='\t')
 write.table(experiment$sigma_summary,file=paste0(args$path,'sigma_summary_',experiment_name,'.tsv'),quote=F,row.names=F,sep='\t')
