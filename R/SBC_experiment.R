@@ -53,7 +53,7 @@ run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
         prior_mod <- prior(normal(0,1),class="b") + prior(exponential(1),class='sigma')
         mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,iter=2000,cores=4)
       }else if(prior_ref=='normalr2d2'){
-        prior_mod <- prior_mod + prior(R2D2(mean_R2=0.3,prec_R2=20,cons_D2 = 0.2))
+        prior_mod <- prior(R2D2(mean_R2=0.3,prec_R2=20,cons_D2 = 0.2)) + prior(exponential(1),class='sigma')
         mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,chains=0,iter=4000,thin=2,cores=4,control=list(adapt_delta=0.99))
         mod_ref_standata <- make_standata(ref_mod_formula,data=dat,prior=prior_mod)
         mod_ref_modified <- rstan::stan(file = 'stan/r2d2_normal.stan', data = mod_ref_standata,refresh=0)
