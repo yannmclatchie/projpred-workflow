@@ -39,7 +39,7 @@ experiment_name <- paste0(args$N_sim,'sim_',
                           args$N,'N_',
                           args$n_rel,'rel_',
                           args$n_irrel,'irrel_',
-                          args$prior_ref,'prior_',
+                          args$prior_ref,'prior',
                           ifelse(args$experiment_suffix!='',paste0('_',args$experiment_suffix),''))
 write.table(experiment$treatment_summary,file=paste0(args$path,'treatment_summary_',experiment_name,'.tsv'),quote=F,row.names=F,sep='\t')
 write.table(experiment$sigma_summary,file=paste0(args$path,'sigma_summary_',experiment_name,'.tsv'),quote=F,row.names=F,sep='\t')
