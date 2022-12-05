@@ -29,13 +29,11 @@ get_posterior_summary <- function(post_dat){
 
 
 run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
-  covars <- paste0('x',seq_len(args$n_rel+args$n_irrel))
+  covars <- paste0('x',seq_len(n_rel+n_irrel))
   rel_covars <- paste0('x',seq_len(n_rel))
   rel_covars_str <- paste(rel_covars,collapse='+')
   ref_mod_vars_str <- paste(c('t',covars),collapse='+')
   ref_mod_formula <- paste0('y~',ref_mod_vars_str)
-  if(args$prior_ref=='normal')
-
   treatment_post_list <- list()
   sigma_post_list <- list()
   run_info_list <- list()
