@@ -1,3 +1,4 @@
+.libPaths('../R/x86_64-pc-linux-gnu-library/4.1/')
 #library(ggplot2)
 #library(dplyr)
 #library(tidyr)
@@ -6,9 +7,6 @@ library(projpred)
 #library(ggdendro)
 source('R/generate.R')
 #source('R/aux/aux_plotting.R')
-# move two folders up from sbatch folder
-.libPaths('../R/x86_64-pc-linux-gnu-library/4.1/')
-
 set.seed(4321)
 rho <- 0.9
 n <- 500
@@ -26,7 +24,7 @@ vs_forward_kfold <- cv_varsel(mod_ref,cv_method='kfold',method = "forward",nterm
 size_maximum_elpd <- vs_forward_loo$summary$size[which.max(vs_forward_loo$summary$elpd.loo)]
 print(paste('running cross validation of search path with max terms =',size_maximum_elpd))
 vs_forward_loo_validated <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=T,nterms_max = size_maximum_elpd)
-save(vs_forward_loo,vs_L1_loo,vs_forward_kfold,file=paste0('R/dat/varsel_objects_',n,'.RData'))
+save(vs_forward_loo,vs_L1_loo,vs_forward_kfold,vs_forward_loo_validated,file=paste0('R/dat/varsel_objects_',n,'.RData'))
 
 
 # elpd_summary <- bind_rows(list(forward_loo=vs_forward_loo$summary,
