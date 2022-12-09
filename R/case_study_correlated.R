@@ -28,7 +28,7 @@ vs_forward_loo_validated <- cv_varsel(mod_ref,cv_method='LOO',method = "forward"
 save(vs_forward_loo,vs_L1_loo,vs_forward_kfold,vs_forward_loo_validated,file=paste0('results/varsel_objects_',n,'.RData'))
 
 ### ELPD plot
-#load('R/dat/varsel_objects_500.RData')
+load('R/dat/varsel_objects_500.RData')
 elpd_summary <- bind_rows(list(forward_loo=vs_forward_loo$summary,
                           L1_loo=vs_L1_loo$summary,
                           forward_loo_validated=vs_forward_loo_validated$summary,
@@ -138,4 +138,4 @@ p_dendro <- ggplot() +
         legend.position = 'none'
   )
 ggsave('R/fig/dendrogram_case_study_3_1.png',p_dendro,width=5,height=5.5)
-save_tikz_plot(p_dendro,width=5,height=5.5,filename = 'tex/dendrogram_case_study_3_1.tex')
+save_tikz_plot(p_dendro,width=3,height=4,filename = 'tex/dendrogram_case_study_3_1.tex')
