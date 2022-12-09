@@ -72,6 +72,7 @@ suggest_size(vs_forward_loo_validated)
 ### DENDROGRAM
 dfun <- function(x) 1 - cor(x)
 # code from https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
+# to enable coloring specific segments of dendrogram
 dendro_data_k <- function(hc, k) {
 
   hcdata    <-  ggdendro::dendro_data(hc, type = "rectangle")
