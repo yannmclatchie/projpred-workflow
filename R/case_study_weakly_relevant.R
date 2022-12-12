@@ -28,7 +28,7 @@ mod_ref <- brm(as.formula(paste0('y~',paste(paste0('X',1:100),collapse='+'))),da
 # neff_ratio(mod_ref)
 # elpd_ref <- loo_ref$estimates["elpd_loo", "Estimate"]
 
-vs_forward_loo <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=F,nterms_max = 3)
+vs_forward_loo <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=F,nterms_max = 100)
 size_maximum_elpd <- vs_forward_loo$summary$size[which.max(vs_forward_loo$summary$elpd.loo)]
 vs_forward_loo_validated <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=T,nterms_max = size_maximum_elpd)
 save(vs_forward_loo,vs_forward_loo_validated,
