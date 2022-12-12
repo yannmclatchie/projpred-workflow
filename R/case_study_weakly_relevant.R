@@ -32,7 +32,7 @@ vs_forward_loo <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_
 size_maximum_elpd <- vs_forward_loo$summary$size[which.max(vs_forward_loo$summary$elpd.loo)]
 vs_forward_loo_validated <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=T,nterms_max = size_maximum_elpd)
 save(vs_forward_loo,vs_forward_loo_validated,
-     file=paste0('results/varsel_objects_R2_',args$R2,'_rho_',args$rho,'_concentration_',args$concentrationn,'fix_beta',args$fix_beta,'.RData'))
+     file=paste0('results/varsel_objects_R2_',args$R2,'_rho_',args$rho,'_fix_beta',args$fix_beta,'.RData'))
 
 # mod_size_candidates <- c('confidence_heuristic'=suggest_size(vs_forward_loo),
 #                         'elpd_difference_heuristic'=suggest_size(vs_forward_loo,thres_elpd = -4))
