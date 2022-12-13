@@ -47,13 +47,13 @@ elpd_plot <- filter(elpd_summary,size<=max_size_displayed,varsel %in% c('forward
             geom_pointrange(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
             geom_line(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
             geom_hline(yintercept=elpd_ref,colour = "red", linetype = "longdash") +
-            geom_vline(xintercept = 4, colour = "grey", linetype = "longdash") +
+            geom_vline(xintercept = 9, colour = "grey", linetype = "longdash") +
             geom_vline(xintercept = 6, colour = "grey", linetype = "longdash") +
             annotate("text", x = 1.5, y = elpd_ref + 10, colour = "red", label = "Reference model elpd",size=3) +
             scale_color_manual(values=c('blue','black'),name='') +
             scale_x_continuous(breaks = 0:max_size_displayed) +
             xlab('Model size') +
-            ylab('$elpd$') +
+            ylab('elpd') +
             theme_bw() +
             theme(panel.grid.major.x = element_blank(),
                   panel.grid.minor.x = element_blank(),
