@@ -37,7 +37,8 @@ elpd_summary <- bind_rows(list(forward_loo=vs_forward_loo$summary,
                                             varsel=='L1_loo' ~ 'LOO L1 selection',
                                             varsel=='forward_loo_validated' ~ 'CV LOO forward selection',
                                             TRUE ~ 'K-fold forward selection'))
-max_size_displayed <- 20
+max_size_displayed <- 30
+elpd_ref <- filter(elpd_summary,varsel=='forward_loo_validated') %>% slice(1) %>% mutate(elpd_ref=elpd.loo-diff) %>% .$elpd_ref
 elpd_plot <- filter(elpd_summary,size<=max_size_displayed,varsel %in% c('forward_loo','forward_loo_validated')) %>%
             ggplot(aes(x=size,
                        y=elpd.loo,
