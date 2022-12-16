@@ -70,7 +70,7 @@ elpd_plot <- ggplot(data=sel_df) +
                   panel.grid.minor.y = element_blank(),
                   legend.position = c(0.8,0.55))
 
-save_tikz_plot(elpd_plot,width=6.5,height=4,filename = 'tex/elpd_plot_case_study_3_2.tex')
+save_tikz_plot(elpd_plot,width=6.5,height=4,filename = 'tex/elpd_plot_case_study_4.2.tex')
 
 ######## Projected posteriors ######
 extract_post <- function(mod,mod_name){
@@ -135,4 +135,4 @@ prj_post_plot <- ggplot(plot_dat) +
         strip.background=element_blank(),
         strip.text=element_text(size=12))
 
-save_tikz_plot(prj_post_plot,width=6,height=3,filename = 'tex/projected_posteriors_case_study_3_2.tex')
+save_tikz_plot(prj_post_plot,width=6,height=3,filename = 'tex/projected_posteriors_case_study_4.2.tex')
