@@ -33,5 +33,5 @@ size_maximum_elpd <- vs_forward_loo$summary$size[which.max(vs_forward_loo$summar
 print(paste('Running cross validated search with nterms_max = ',size_maximum_elpd))
 vs_forward_loo_validated <- cv_varsel(mod_ref,cv_method='LOO',method = "forward",validate_search=T,nterms_max = size_maximum_elpd)
 save(beta,vs_forward_loo,vs_forward_loo_validated,
-     file=paste0('results/varsel_objects_R2_',args$R2,'_rho_',args$rho,'_fix_beta',args$fix_beta,'.RData'))
+     file=paste0('results/case_study_4.2_R2_',args$R2,'_rho_',args$rho,'_fix_beta',args$fix_beta,'.RData'))
 print(Sys.time()-t)

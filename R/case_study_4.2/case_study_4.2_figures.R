@@ -8,7 +8,7 @@ library(geomtextpath)
 library(tidyr)
 source('R/aux/aux_plotting.R')
 
-load('results/varsel_objects_R2_0.5_rho_0.1_fix_betaFALSE.RData')
+load('R/dat/case_study_4.2_R2_0.5_rho_0.1_fix_betaFALSE.RData')
 sel_df <- vs_forward_loo_validated$summary
 mono.spline <- scam(diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), data = sel_df)
 spline_df <- tibble(size=sel_df$size,
