@@ -10,25 +10,29 @@ elpd_summary <- bind_rows(list(forward_loo=vs_forward_loo$summary,
                                L1_loo=vs_L1_loo$summary,
                                forward_loo_validated=vs_forward_loo_validated$summary,
                                forward_kfold=rename(vs_forward_kfold$summary,elpd.loo=elpd.kfold)),.id='varsel') %>%
-  mutate(varsel_lab=case_when(varsel=='forward_loo' ~ 'LOO forward selection',
+  mutate(varsel_lab=case_when(varsel=='forward_loo' ~ 'Single-path forward selection',
                               varsel=='L1_loo' ~ 'LOO L1 selection',
-                              varsel=='forward_loo_validated' ~ 'CV LOO forward selection',
+                              varsel=='forward_loo_validated' ~ 'Cross-validated forward selection',
                               TRUE ~ 'K-fold forward selection'))
 max_size_displayed <- 30
 elpd_ref <- filter(elpd_summary,varsel=='forward_loo_validated') %>% slice(1) %>% mutate(elpd_ref=elpd.loo-diff) %>% .$elpd_ref
+mod_size_candidates <- c('confidence_heuristic' = with(vs_forward_loo_validated$summary,size[min(which(diff + diff.se>=0))]),
+                         'elpd_difference_heuristic'=spline_df$size[min(which(spline_df$mono.spline.diff >= -4))])
 elpd_plot <- filter(elpd_summary,size<=max_size_displayed,varsel %in% c('forward_loo','forward_loo_validated')) %>%
   ggplot(aes(x=size,
              y=elpd.loo,
              ymin=elpd.loo-se,
              ymax=elpd.loo+se,
-             col=varsel_lab)) +
-  geom_pointrange(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
-  geom_line(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
+             col=varsel_lab,
+             alpha=varsel_lab)) +
   geom_hline(yintercept=elpd_ref,colour = "red", linetype = "longdash") +
   geom_vline(xintercept = 9, colour = "grey", linetype = "longdash") +
   geom_vline(xintercept = 6, colour = "grey", linetype = "longdash") +
+  geom_pointrange(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
+  geom_line(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
   annotate("text", x = 1.5, y = elpd_ref + 10, colour = "red", label = "Reference model elpd",size=3) +
-  scale_color_manual(values=c('blue','black'),name='') +
+  scale_color_manual(values=c('black','grey'),name='') +
+  scale_alpha_discrete(range=c(1,1),name='') +
   scale_x_continuous(breaks = 0:max_size_displayed) +
   xlab('Model size') +
   ylab('elpd') +
