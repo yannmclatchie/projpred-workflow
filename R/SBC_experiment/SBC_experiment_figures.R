@@ -15,12 +15,7 @@ plot_calibration <- function(dat){
     interpolate_adj = F) +
     theme(
       plot.title=element_text(size=12,family=''),
-      strip.text.x = element_blank(),
-      #plot.subtitle = element_text(size=16),
-      #axis.title.x=element_text(size=18),
-      #axis.title.y=element_text(size=18),
-      #axis.text.x=element_text(size=16),
-      #axis.text.y=element_text(size=16)
+      strip.text.x = element_blank()
     )
 }
 

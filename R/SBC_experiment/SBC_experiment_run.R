@@ -2,8 +2,7 @@
 #move from sbatch directory to project directory
 setwd('../../')
 #Tell cluster where R is located
-R_image_path <- '../R/x86_64-pc-linux-gnu-library/4.1/'
-.libPaths(R_image_path)
+.libPaths('../R/x86_64-pc-linux-gnu-library/4.1/')
 library(brms)
 library(projpred)
 library(dplyr)
