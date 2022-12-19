@@ -2,6 +2,8 @@
 library(brms)
 library(projpred)
 library(parallel)
+library(ggplot2)
+library(patchwork)
 
 # set seed
 SEED <- 1513306866
@@ -42,7 +44,7 @@ fit <- brm(
 #  seed = SEED
 #)
 #saveRDS(vs_forward, "data/vs_forward.rds")
-#vs_forward <- readRDS("data/vs_forward.rds")
+vs_forward <- readRDS("data/vs_forward.rds")
 #vs_l1 <- cv_varsel(
 #  fit,
 #  method = "l1",
@@ -62,23 +64,12 @@ source("./R/aux/gg_pct_solution_terms_cv.R")
           axis.ticks.y = element_blank()) 
   & labs(subtitle = "$L_1$ search"))
 
-library(patchwork)
 ( gg_fw_l1 <- gg_fw | gg_l1 )
 y_fw_order <- ggplot_build(gg_fw)$layout$panel_scales_y[[1]]$range$range
 gg_fw_l1_fixedY <- (gg_fw + gg_l1) & scale_y_discrete(limits = y_fw_order)
 gg_fw_l1_fixedY
 
-
 source("./R/aux/aux_plotting.R")
-save_tikz_plot(plot = gg_fw,
-               filename = "./tex/pct_solution_terms_cv_forward.tex",
-               width = 6)
-save_tikz_plot(plot = gg_l1,
-               filename = "./tex/pct_solution_terms_cv_l1.tex",
-               width = 6)
-save_tikz_plot(plot = gg_fw_l1,
-               filename = "./tex/pct_solution_terms_cv_forward_l1.tex",
-               width = 6)
 save_tikz_plot(plot = gg_fw_l1_fixedY,
                filename = "./tex/pct_solution_terms_cv_forward_l1_fixedY.tex",
-               width = 6)
+               width = 7)

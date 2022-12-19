@@ -18,15 +18,14 @@ gg_pct_solution_terms_cv <- function(cvvs) {
   brks <- sort(unique(as.numeric(pct$val_grp)) + 1)
   ggobj <- ggplot(pct, aes(x = .size, y = var)) +
     geom_tile(aes(fill = val_grp, color = sel),
-              width = 1, height = 0.9, linewidth = 1) +
-    geom_text(aes(label = val, fontface = sel+1)) +
+              width = 1, height = 1, linewidth = 1) +
+    geom_text(aes(label = val, fontface = sel+1), size = 3) +
     coord_cartesian(expand = FALSE) +
     scale_y_discrete(limits = rev(levels(pct$var))) +
     scale_x_discrete(limits = factor(seq(1,col))) +
     scale_color_manual(values = c("white", "black")) +
     labs(x = "Model size", y = "") +
     scale_fill_manual(breaks = brks, values = col_brks$pal[brks]) +
-    theme_proj() +
     theme(legend.position = "none")
   return(ggobj)
 }
