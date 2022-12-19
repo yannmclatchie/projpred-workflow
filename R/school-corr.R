@@ -1,9 +1,10 @@
 # load necessary libraries
+if (!require("scam")) install.packages("scam"); library("scam")
+
 library(dplyr)
 library(purrr)
 library(brms)
 library(projpred)
-library(gamm4)
 library(matrixStats)
 library(geomtextpath)
 library(ggdendro)
@@ -83,17 +84,18 @@ fit <- brm(
 ## Projpred
 
 # perform projections
-vs <- varsel(
+vs <- cv_varsel(
   fit, 
   method = "forward", 
-  nterms_max = p_Gmat
+  nterms_max = p_Gmat,
+  validate_search = TRUE
 )
 
 # compute submodel summaries
 sel_df <- summary(vs, stats = c("elpd"))$selection
 
 # smoothed elpd differences
-spline <- gam(diff/diff.se ~ s(size, k = 5, m = 4), data = sel_df)
+spline <- scam(diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), data = sel_df)
 
 ################
 ## Dendrogram
