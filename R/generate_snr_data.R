@@ -1,3 +1,54 @@
+#' Generate data with fixed signal-to-noise ratio (R^2)
+#'
+#' @param n number of data points
+#' @param p number of predictors
+#' @param sigma residual variance
+#' @param R2 R^2 of the data generating process
+#' @param rho correlation between predictors
+#' @param beta for convenience, pre-computed beta values can also be provided.
+#'     Then, only design-matrix and noise are re-drawn.
+#' @param fixed_beta Whether to fix betas into a specific value, so that the DGP
+#'     has a R2 of the desired value. If true, the variance of beta vector is 
+#'     solved and values of beta are drawn randomly.
+#' @return list with two elements, `df` and `beta`. The former is data frame 
+#'     with simulated predictors and response and latter the coefficient values.
+generate_fixed_R2_data = function(
+    n, 
+    p, 
+    sigma, 
+    R2, 
+    rho = NULL, 
+    beta = NULL,
+    fixed_beta = FALSE) {
+  stopifnot(R2 >= 0, R2 < 1)
+  X = generate_X(n, p, rho)
+  if(R2 == 0) { 
+    beta = rep(0, p) 
+  } else { 
+    if(fixed_beta) { beta = .fixed_R2_fixed_beta(n, p, sigma, R2, rho) }
+    if(!fixed_beta) { beta = .fixed_R2_random_beta(n, p, sigma, R2, beta) }
+  }
+  eps = rnorm(n, 0, sigma)
+  y = X %*% beta + eps
+  return(list(df = data.frame(X, y), beta = beta)) 
+}
+
+
+.fixed_R2_random_beta = function(n, p, sigma, R2, beta) {
+  if(is.null(beta)) {
+    var_beta = sigma^2/p / (1/R2 - 1)
+    beta = rnorm(p, 0, sqrt(var_beta))
+  }
+  beta
+}
+
+
+.fixed_R2_fixed_beta = function(n, p, sigma, R2, rho) {
+  beta = sqrt(sigma^2 * R2 / ((1 - R2)*p*(1 + p*rho - rho)))
+  rep(beta, p)
+}
+
+
 generate_X = function(n, p, rho = NULL) {
   mu = rep(0, p)
   Sigma = diag(p)
@@ -7,67 +58,3 @@ generate_X = function(n, p, rho = NULL) {
   
   MASS::mvrnorm(n, mu, Sigma)
 }
-
-
-#' Generate data with fixed signal-to-noise ratio (R^2)
-#'
-#' @param n number of data points
-#' @param p number of predictors
-#' @param sigma residual variance (if applicable)
-#' @param SNR signal-to-noise ratio, or R^2 of the generated data
-#' @param rho correlation between predictors
-#' @param beta optionally, fixed values of coefficients. If not provided, new 
-#'     values are sampled
-#' @param family not used atm
-#'
-#' @return
-fixed_SNR = function(
-    n, 
-    p, 
-    sigma, 
-    SNR, 
-    rho = NULL, 
-    beta = NULL, 
-    family = 'gaussian') {
-  stopifnot(family %in% c('gaussian'),
-            SNR >= 0)
-  if(family == 'gaussian') return(fixed_SNR_gaussian(n, p, sigma, SNR, rho, beta))
-  if(family == 'bernoulli') return(fixed_SNR_bernoulli(n, p, sigma, SNR, rho, beta))
-}
-
-fixed_SNR_gaussian = function(n, p, sigma, SNR, rho, beta) {
-  X = generate_X(n, p, rho)
-  if (is.null(beta)) {
-    if(SNR > 0) {
-      # Assumes var_x = 1
-      var_beta = sigma^2/p / (1/SNR - 1)   
-      beta = rnorm(p, 0, sqrt(var_beta))
-    } else {
-      # If SNR is zero, all coefs are set to zero aswell
-      beta = rep(0, p)
-    } 
-  }
-  eps = rnorm(n, 0, sigma)
-  y = X %*% beta + eps
-  return(list(df = data.frame(X, y), beta = beta))
-}
-
-
-fixed_SNR_bernoulli = function(n, p, sigma, SNR, beta) {
-  stop("not implemented yet")
-  # X = generate_X(n, p)
-  # if (is.null(beta)) {
-  #   if(SNR > 0) {
-  #     # Assumes var_x = 1 and rho = 0
-  #     var_beta = sigma^2/p / (1/SNR - 1)   
-  #     beta = rnorm(p, 0, sqrt(var_beta))
-  #   } else {
-  #     # If SNR is zero, all coefs are set to zero aswell
-  #     beta = rep(0, p)
-  #   } 
-  # }
-  # y = rbernoulli(n, 1 / (1 + exp(-X %*% beta)))
-  # return(list(df = data.frame(X, y), beta = beta))
-}
-
-
