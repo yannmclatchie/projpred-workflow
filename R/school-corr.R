@@ -74,9 +74,9 @@ data_Gpor <- data_Gpor %>% dplyr::select(where(~ n_distinct(.) > 1))
 
 # fit the reference model
 fit <- brm(
-  formula = "Gmat ~ .", 
-  family = "gaussian", 
-  prior = set_prior(R2D2(mean_R2 = 0.3, prec_R2 = 3)), 
+  formula = Gmat ~ ., 
+  family = gaussian, 
+  prior = set_prior(R2D2(mean_R2 = 0.3, prec_R2 = 5, cons_D2 = 10)), 
   data = data_Gmat
 )
 
@@ -95,7 +95,13 @@ vs <- cv_varsel(
 sel_df <- summary(vs, stats = c("elpd"))$selection
 
 # smoothed elpd differences
-spline <- scam(diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), data = sel_df)
+sel_df_not_null_mod <- filter(sel_df, size != 0)
+mono.spline <- scam(diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), data = sel_df_not_null_mod)
+spline_df <- tibble(
+  size = sel_df_not_null_mod$size[sel_df_not_null_mod$size>0],
+  mono.spline.diff = mono.spline$fit*sel_df_not_null_mod[,'diff.se'],
+  mono.spline.diff.se = sqrt(mono.spline$sig2)*sel_df_not_null_mod[,'diff.se']
+)
 
 ################
 ## Dendrogram
@@ -151,12 +157,13 @@ p_elpd_diff <- sel_df %>%
     )
   ) +
   geom_ribbon(
+    data = spline_df,
     aes(
       x = size,
-      ymin = spline.diff - spline.diff.se, 
-      ymax = spline.diff + spline.diff.se
-    ), 
-    alpha = 0.3, fill = "red"
+      ymin = mono.spline.diff - mono.spline.diff.se,
+      ymax = mono.spline.diff + mono.spline.diff.se
+    ),
+    alpha = 0.2, linetype = 2, fill = "blue"
   ) +
   ylab("$delta elpd$") +
   xlab("Model size") +
@@ -171,17 +178,3 @@ p
 # save plot to tikz
 source("./R/aux/aux_plotting.R")
 save_tikz_plot(p, width = 6, filename = "./tex/schools-dendro.tex")
-
-# Kullback-Leibler divergence along the path
-p_kl <- data.frame(kl = vs$kl, size = 1:length(vs$kl)) %>% 
-  ggplot(aes(x = size, y = kl)) +
-  geom_point() + 
-  geom_line() +
-  ylab("Divergence from reference model") +
-  xlab("Model Size") +
-  theme_bw() + 
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank())
-p_kl
-save_tikz_plot(p_kl, width = 6, filename = "./tex/schools-kl.tex")
