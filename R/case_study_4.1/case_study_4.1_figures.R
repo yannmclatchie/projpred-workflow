@@ -23,16 +23,14 @@ elpd_plot <- filter(elpd_summary,size<=max_size_displayed,varsel %in% c('forward
              y=elpd.loo,
              ymin=elpd.loo-se,
              ymax=elpd.loo+se,
-             col=varsel_lab,
-             alpha=varsel_lab)) +
+             col=varsel_lab)) +
   geom_hline(yintercept=elpd_ref,colour = "red", linetype = "longdash") +
   geom_vline(xintercept = 9, colour = "grey", linetype = "longdash") +
   geom_vline(xintercept = 6, colour = "grey", linetype = "longdash") +
   geom_pointrange(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
   geom_line(position = position_jitterdodge(dodge.width = 0.2, jitter.width = 0)) +
-  annotate("text", x = 1.5, y = elpd_ref + 10, colour = "red", label = "Reference model elpd",size=3) +
+  annotate("text", x = 1.25, y = elpd_ref + 10, colour = "red", label = "Reference model elpd",size=3) +
   scale_color_manual(values=c('black','grey'),name='') +
-  scale_alpha_discrete(range=c(1,1),name='') +
   scale_x_continuous(breaks = 0:max_size_displayed) +
   xlab('Model size') +
   ylab('elpd') +
@@ -41,7 +39,7 @@ elpd_plot <- filter(elpd_summary,size<=max_size_displayed,varsel %in% c('forward
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.position = c(0.8,0.55))
-save_tikz_plot(elpd_plot,width=6,height=4,filename = 'tex/elpd_plot_case_study_4.1.tex')
+save_tikz_plot(elpd_plot,width=6.5,height=4,filename = 'tex/elpd_plot_case_study_4.1.tex')
 
 
 
