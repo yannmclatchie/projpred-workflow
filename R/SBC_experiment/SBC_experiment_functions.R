@@ -1,16 +1,17 @@
 ## ----- Helper functions -------
-def_indep_treatment_experiment <- function(N,n_rel,n_irrel,seed){
+def_indep_treatment_experiment <- function(N,n_rel,n_irrel,seed,sd_beta=1,lambda=1){
   set.seed(seed)
   n_covars <- n_rel + n_irrel
   covars <- paste0('x',seq_len(n_covars))
-  beta <- rnorm(n_rel+1,mean=0,sd=1)
+  beta <- rnorm(n_rel+1,mean=0,sd=sd_beta)
   names(beta) <- c('t',covars[seq_len(n_rel)])
-  sigma <- rexp(1)
+  sigma <- rexp(n=1,rate=lambda)
   names(sigma) <- 'sigma'
   dat <- as.data.frame(matrix(rnorm(n_covars*N,mean=0,sd=1),nrow=N))
   names(dat) <- covars
   dat <- cbind(data.frame(t=rbinom(N,size=1,prob=0.5)),dat) # randomized trial
-  dat$y <- rnorm(N,mean=as.matrix(dat[,seq_len(n_rel+1)]) %*%beta,sd=sigma)
+  dat$mean <- as.matrix(dat[,seq_len(n_rel+1)]) %*%beta
+  dat$y <- rnorm(N,mean=dat$mean,sd=sigma)
   return(list(dat=dat,beta=beta,sigma=sigma))
 }
 
@@ -52,7 +53,7 @@ run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
         mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,iter=2000,cores=4)
       }else if(prior_ref=='normalr2d2'){
         prior_mod <- prior(R2D2(mean_R2=0.3,prec_R2=20,cons_D2 = 0.2)) + prior(exponential(1),class='sigma')
-        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,chains=0,iter=4000,thin=2,cores=4,control=list(adapt_delta=0.99))
+        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,chains=0,iter=16000,thin=8,cores=4,control=list(adapt_delta=0.999))
         mod_ref_standata <- make_standata(ref_mod_formula,data=dat,prior=prior_mod)
         mod_ref_modified <- rstan::stan(file = 'stan/r2d2_normal.stan', data = mod_ref_standata,refresh=0)
         mod_ref$fit <- mod_ref_modified
