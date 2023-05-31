@@ -37,7 +37,7 @@ SNR <- var(as.matrix(dat[,1:n_rel]) %*%beta)/sigma^2
 
 irrel_cor <- sapply(seq(n_rel+1,n_rel+n_irrel),function(i) cor(dat$y,dat[,i]))
 #covariates of a model with fewer covariates, with half of the relevant variables
-small_covars <- c(paste0('x',seq(1,floor(n_rel/2))))
+small_covars <- c(paste0('x',seq(1,n_rel)))#c(paste0('x',seq(1,floor(n_rel/2))))
 small_covars_str <- paste(small_covars,collapse='+')
 
 prj_small <- project(mod_ref,solution_terms=small_covars,ndraws=8000)
@@ -66,9 +66,10 @@ extract_post_pred <- function(mod,mod_type){
 mod_types <- c('ref'='Reference model','refit'='Submodel refit','prj'='Projected model')
 var_names <- c('b_x1'='$beta_1$','b_x2'='$beta_2$','sigma'='$sigma$')
 mod_list <- list(mod_ref,prj_small,mod_refit_small)
-posterior_dat <- bind_cols(extract_post(mod_ref,'ref_all'),
-                           extract_post(prj_small,'prj_small'),
-                           extract_post(mod_refit_small,'refit_small'),) %>%
+posterior_dat <- bind_cols(extract_post(prj_small,'prj_small'),
+                           extract_post(mod_ref,'ref_all'),
+                           #extract_post(mod_refit_small,'refit_small')
+                           ) %>%
                 pivot_longer(cols=everything(),names_to='var',values_to='value') %>%
                 separate(var,sep = ':',into = c('model','var'),remove = F) %>%
                 separate(model,sep = '_',into = c('model_type','size'),remove = F) %>%
@@ -76,7 +77,7 @@ posterior_dat <- bind_cols(extract_post(mod_ref,'ref_all'),
                        var_name=var_names[var])
 
 pp_summary <- bind_rows(extract_post_pred(prj_small,mod_types['prj']),
-                        extract_post_pred(mod_refit_small,mod_types['refit']),
+                        #extract_post_pred(mod_refit_small,mod_types['refit']),
                         extract_post_pred(mod_ref,mod_types['ref'])) %>%
                 group_by(mod_type_name,datapoint) %>%
                 summarise(lower=quantile(value,0.025),
@@ -86,6 +87,7 @@ pp_summary <- bind_rows(extract_post_pred(prj_small,mod_types['prj']),
 
 #### ---- Plot ----
 cols <- c('#BC3C29FF','#0072B5FF','#E18727FF','#20854EFF','#7876B1FF','#6F99ADFF','#EE4C97FF')[seq_len(3)]
+cols <- c("black", "grey", "blue")
 true_vals <- tibble(var_name=var_names,value=c(beta[1:2],sigma))
 small_post_plot_dat <- bind_rows(select(posterior_dat,mod_type_name,var_name,value),
                                select(pp_summary,mod_type_name,var_name,value=mean))
@@ -107,6 +109,7 @@ small_post_plot <- ggplot(small_post_plot_dat) +
         legend.text = element_text(size=12),
         strip.background=element_blank(),
         strip.text=element_text(size=12))
+small_post_plot
 
 ggsave('fig/overconfidence.png',plot=small_post_plot,width=8,height=3)
-save_tikz_plot(small_post_plot,width=6,height=3,filename = 'tex/overconfidence.tex')
+save_tikz_plot(small_post_plot,width=7,height=2.5,filename = 'tex/overconfidence.tex')
