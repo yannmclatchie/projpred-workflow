@@ -12,10 +12,11 @@ gg_pct_solution_terms_cv <- function(cvvs) {
   colnames(pctch)[1] <- ".size"
   pct <- get_pct_arr(pctch, 13)
   col_brks <- get_col_brks()
-  pct$val_grp <- as.character(sapply(pct$val, function(x) sum(x >= col_brks$breaks)))
+  pct$val_grp <- sapply(pct$val, function(x) sum(x >= col_brks$breaks))
   if (identical(rows, 0)) rows <- pct$var[1]
   pct$sel <- (pct$.size == col) & (pct$var %in% rows)
-  brks <- sort(unique(as.numeric(pct$val_grp)) + 1)
+  brks <- sort(unique(as.numeric(pct$val_grp)))
+  pct$val_grp <- factor(pct$val_grp,levels=brks)
   ggobj <- ggplot(pct, aes(x = .size, y = var)) +
     geom_tile(aes(fill = val_grp, color = sel),
               width = 1, height = 1, linewidth = 1) +
@@ -25,7 +26,7 @@ gg_pct_solution_terms_cv <- function(cvvs) {
     scale_x_discrete(limits = factor(seq(1,col))) +
     scale_color_manual(values = c("white", "black")) +
     labs(x = "Model size", y = "") +
-    scale_fill_manual(breaks = brks, values = col_brks$pal[brks]) +
+    scale_fill_manual(breaks = brks, values = col_brks$pal[brks+1]) +
     theme(legend.position = "none")
   return(ggobj)
 }
