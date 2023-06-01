@@ -50,10 +50,10 @@ run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
     if(i==1){
       if(prior_ref=='normal'){
         prior_mod <- prior(normal(0,1),class="b") + prior(exponential(1),class='sigma')
-        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,iter=2000,cores=4)
+        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,iter=2000,cores=4) # save_pars = save_pars(all = TRUE)
       }else if(prior_ref=='normalr2d2'){
         prior_mod <- prior(R2D2(mean_R2=0.3,prec_R2=20,cons_D2 = 0.2)) + prior(exponential(1),class='sigma')
-        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,chains=0,iter=16000,thin=8,cores=4,control=list(adapt_delta=0.999))
+        mod_ref <- brm(ref_mod_formula,data=dat,prior=prior_mod,family=gaussian(),refresh=0,chains=0,iter=16000,thin=8,cores=4,control=list(adapt_delta=0.999)) # save_pars = save_pars(all = TRUE)
         mod_ref_standata <- make_standata(ref_mod_formula,data=dat,prior=prior_mod)
         mod_ref_modified <- rstan::stan(file = 'stan/r2d2_normal.stan', data = mod_ref_standata,refresh=0)
         mod_ref$fit <- mod_ref_modified
@@ -71,6 +71,10 @@ run_SBC_experiment <- function(N_sim,N,n_rel,n_irrel,prior_ref){
     }
     #calculate loo diagnostics for reference model
     loo_mod_ref <- loo(mod_ref)
+    ### For actual lpds:
+    # loo_mod_ref_clean <- loo(mod_ref, moment_match = TRUE, reloo = TRUE)
+    ###
+    # TODO: Does the current code allow to compute elpd difference between different `prior_ref`s but for the same dataset, i.e., the same SBC iteration (after storing `loo_mod_ref_clean` in the results, I guess)?
     #Projpred variable selection using kfold cross validation
     cv_select_prj <- cv_varsel(mod_ref,cv_method='kfold',method='forward',validate_search=T,nterms_max=30,search_terms=paste('t + ',covars))
     selected_vars_prj <- sort(solution_terms(cv_select_prj)[seq_len(suggest_size(cv_select_prj))])
