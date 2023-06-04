@@ -7,9 +7,9 @@ library(brms)
 library(projpred)
 library(dplyr)
 library(argparser)
-source('R/SBC_experiment/SBC_experiment_functions.R')
+source('R/SBC_experiment/loo_experiment_functions.R')
 ## ----- Define argument parser -------
-p <- arg_parser("Run SBC experiment from the paper 'Robust and efficient projection predictive inference'")
+p <- arg_parser("Run loo for the SBC experiment from the paper 'Robust and efficient projection predictive inference'")
 p <- add_argument(p, "--N_sim", help="Number of SBC simulations to perform", default=300,type="numeric")
 p <- add_argument(p, "--N", help="Integer determining the size of the simulated data sets",type="numeric")
 p <- add_argument(p, "--n_rel", help="Integer determining the number of relevant predictors",type="numeric")
@@ -32,7 +32,7 @@ args <- parse_args(p)
 # args$experiment_suffix <- ''
 # args$path <- 'results/'
 
-experiment <- run_SBC_experiment(N_sim=args$N_sim,N=args$N,n_rel=args$n_rel,n_irrel=args$n_irrel,prior_ref=args$prior_ref)
+experiment <- run_loo_experiment(N_sim=args$N_sim,N=args$N,n_rel=args$n_rel,n_irrel=args$n_irrel,prior_ref=args$prior_ref)
 
 experiment_name <- paste0(args$N_sim,'sim_',
                           args$N,'N_',
