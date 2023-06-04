@@ -10,20 +10,26 @@ create_sh_file <- function(mem,time,output,script){
   return(str)
 }
 
-get_SBC_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,validate_search,experiment_suffix,path){
+get_loo_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,validate_search,experiment_suffix,path){
   experiment_name <- paste0(N_sim,'sim_',
                             N,'N_',
                             n_rel,'rel_',
                             n_irrel,'irrel_',
                             prior_ref,'prior',
                             ifelse(experiment_suffix!='',paste0('_',experiment_suffix),''))
+  ### Original code:
   sh_dir <- 'R/SBC_sh_files/'
+  ###
+  ### Perhaps the following is needed, with folder `R/loo_sh_files` adapted as
+  ### necessary (I can't tell, because folder `R/SBC_sh_files` does not exist):
+  # sh_dir <- 'R/loo_sh_files/'
+  ###
   if(!dir.exists(file.path(sh_dir))){
     dir.create(file.path(sh_dir))
   }
   sh_path <- paste0(sh_dir,experiment_name,'.sh')
   sh_file_str <- create_sh_file(mem='5G',time=time,output=paste0(experiment_name,'.out'),
-                                script=paste0('../run_SBC_experiment.R',
+                                script=paste0('../run_loo_experiment.R',
                                               ' --N_sim ',N_sim,
                                               ' --N ',N,
                                               ' --n_rel ',n_rel,' --n_irrel ',n_irrel,
@@ -47,7 +53,7 @@ path <- 'results/'
 for(pri in prior_refs){
   for(i in 1:(N_sim/batch_size)){
     count=count+1
-    get_SBC_experiment_sh_file(time=batch_time,N=N,n_rel=n_rel,n_irrel=n_irrel,prior_ref=pri,N_sim=batch_size,experiment_suffix=paste(suffix,i,sep='_'),path=path)
+    get_loo_experiment_sh_file(time=batch_time,N=N,n_rel=n_rel,n_irrel=n_irrel,prior_ref=pri,N_sim=batch_size,experiment_suffix=paste(suffix,i,sep='_'),path=path)
   }
 }
 
