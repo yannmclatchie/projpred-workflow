@@ -7,6 +7,7 @@ library(brms)
 library(projpred)
 library(dplyr)
 library(argparser)
+source('R/SBC_experiment/SBC_experiment_functions.R')
 source('R/SBC_experiment/loo_experiment_functions.R')
 ## ----- Define argument parser -------
 p <- arg_parser("Run loo for the SBC experiment from the paper 'Robust and efficient projection predictive inference'")
