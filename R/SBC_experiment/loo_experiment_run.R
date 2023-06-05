@@ -11,7 +11,7 @@ source('R/SBC_experiment/SBC_experiment_functions.R')
 source('R/SBC_experiment/loo_experiment_functions.R')
 ## ----- Define argument parser -------
 p <- arg_parser("Run loo for the SBC experiment from the paper 'Robust and efficient projection predictive inference'")
-p <- add_argument(p, "--N_sim", help="Number of SBC simulations to perform", default=300,type="numeric")
+p <- add_argument(p, "--N_sim", help="Number of SBC simulations to perform", default=10,type="numeric")
 p <- add_argument(p, "--N", help="Integer determining the size of the simulated data sets",type="numeric")
 p <- add_argument(p, "--n_rel", help="Integer determining the number of relevant predictors",type="numeric")
 p <- add_argument(p, "--n_irrel", help="Integer determining the number of irrelevant predictors",type="numeric")

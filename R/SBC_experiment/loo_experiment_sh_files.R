@@ -29,7 +29,7 @@ get_loo_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,vali
   }
   sh_path <- paste0(sh_dir,experiment_name,'.sh')
   sh_file_str <- create_sh_file(mem='5G',time=time,output=paste0(experiment_name,'.out'),
-                                script=paste0('../run_loo_experiment.R',
+                                script=paste0('../run_loo_experiment.R', # Does this need to be file './R/SBC_experiment/loo_experiment_functions.R'? Or './R/SBC_experiment/loo_experiment_run.R'?
                                               ' --N_sim ',N_sim,
                                               ' --N ',N,
                                               ' --n_rel ',n_rel,' --n_irrel ',n_irrel,
@@ -39,7 +39,7 @@ get_loo_experiment_sh_file <- function(time,N_sim,N,n_rel,n_irrel,prior_ref,vali
   cat(sh_file_str,file=sh_path)
 }
 
-N_sim <- 300
+N_sim <- 10
 N <- 100
 n_rel <- 10
 n_irrel <- 60
