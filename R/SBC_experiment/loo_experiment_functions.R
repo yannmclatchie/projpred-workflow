@@ -1,4 +1,5 @@
 library(brms)
+options(brms.backend = "rstan")
 source('R/SBC_experiment/SBC_experiment_functions.R')
 run_loo_experiment <- function(N_sim,N,n_rel,n_irrel){
   covars <- paste0('x',seq_len(n_rel+n_irrel))
