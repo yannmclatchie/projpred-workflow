@@ -93,11 +93,14 @@ small_post_plot_dat <- bind_rows(select(posterior_dat,mod_type_name,var_name,val
                                select(pp_summary,mod_type_name,var_name,value=mean))
 small_post_plot <- ggplot(small_post_plot_dat) +
   geom_density(data=mutate(dat,var_name='$y$'),aes(y),color=NA,fill='black',alpha=0.2,adjust=2) +
-  stat_density(aes(value,col=mod_type_name),geom='line',position = "identity",adjust=2,size=0.8) +
+  stat_density(aes(value,col=mod_type_name, linetype = mod_type_name),
+               geom='line',position = "identity",adjust=2,size=0.8) +
   facet_wrap(~var_name,nrow=1,scale='free') +
-  geom_vline(data=true_vals,aes(xintercept=value),linetype='dashed',size=0.7,alpha=1) +
+  geom_vline(data=true_vals,aes(xintercept=value),linetype='dotted',colour="black",size=0.7,alpha=1) +
   scale_y_continuous(expand=c(0.01,0)) +
   scale_color_manual(values=cols,breaks = mod_types,name='') +
+  scale_linetype_manual(values = c("solid", "dotdash", "dashed"),
+                        breaks = mod_types, name = "") +
   scale_fill_manual(values='black',breaks = 'Data density',name='') +
   xlab('') +
   ylab('Density') +
@@ -107,6 +110,7 @@ small_post_plot <- ggplot(small_post_plot_dat) +
         legend.box.margin=margin(0,0,0,0),
         legend.box.spacing = unit(0, "pt"),
         legend.text = element_text(size=12),
+        legend.key.size = unit(1, 'cm'),
         strip.background=element_blank(),
         strip.text=element_text(size=12))
 small_post_plot
