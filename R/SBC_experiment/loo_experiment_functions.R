@@ -42,8 +42,8 @@ run_loo_experiment <- function(N_sim,N,n_rel,n_irrel){
       # mod_ref_r2d2normal <- update(mod_ref_r2d2normal_base,newdata=dat,recompile=F,refresh=0)
     }
     loo_mod_ref_normal <- loo(mod_ref_normal, moment_match = TRUE, reloo = TRUE)
-    loo_mod_ref_r2d2 <- loo(mod_ref_r2d2) #note: moment_match gives error, indicating not all parameters were stored (which they in fact were!)
-    # loo_mod_ref_r2d2normal <- loo(mod_ref_r2d2normal) #note: moment_match gives error, indicating not all parameters were stored (which they in fact were!)
+    loo_mod_ref_r2d2 <- loo(mod_ref_r2d2, reloo = TRUE) #note: moment_match gives error, indicating not all parameters were stored (which they in fact were!)
+    # loo_mod_ref_r2d2normal <- loo(mod_ref_r2d2normal, reloo = TRUE) #note: moment_match gives error, indicating not all parameters were stored (which they in fact were!)
     loo_normal[i] <- loo_mod_ref_normal$estimates['elpd_loo','Estimate']
     loo_r2d2[i] <- loo_mod_ref_r2d2$estimates['elpd_loo','Estimate']
     # loo_r2d2normal[i] <- loo_mod_ref_r2d2normal$estimates['elpd_loo','Estimate']
