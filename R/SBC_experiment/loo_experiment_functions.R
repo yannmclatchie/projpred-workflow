@@ -23,14 +23,17 @@ run_loo_experiment <- function(N_sim,N,n_rel,n_irrel){
         #reference model with independent normal prior
         prior_mod_normal <- prior(normal(0,1),class="b") + prior(exponential(1),class='sigma')
         mod_ref_normal <- brm(ref_mod_formula,data=dat,prior=prior_mod_normal,family=gaussian(),refresh=0,iter=2000,cores=4, save_pars = save_pars(all = TRUE))
+        # rstan::check_hmc_diagnostics(mod_ref_normal$fit)
         #reference model with r2d2 prior on all coefficients
         prior_mod_r2d2 <- prior(R2D2(mean_R2=0.3,prec_R2=20,cons_D2 = 0.2)) + prior(exponential(1),class='sigma')
         mod_ref_r2d2 <- brm(ref_mod_formula,data=dat,prior=prior_mod_r2d2,family=gaussian(),refresh=0,chains=4,iter=4000,thin=2,cores=4,control=list(adapt_delta=0.999), save_pars = save_pars(all = TRUE))
+        # rstan::check_hmc_diagnostics(mod_ref_r2d2$fit)
 
         #reference model with normal prior on treatment and r2d2 prior on the rest
         mod_ref_r2d2normal<- brm(ref_mod_formula,data=dat,prior=prior_mod_r2d2,family=gaussian(),refresh=0,chains=0,iter=16000,thin=8,cores=4,control=list(adapt_delta=0.999), save_pars = save_pars(all = TRUE))
         mod_ref_standata <- make_standata(ref_mod_formula,data=dat,prior=prior_mod_r2d2)
         mod_ref_modified <- rstan::stan(file = 'stan/r2d2_normal.stan', data = mod_ref_standata,refresh=0)
+        # rstan::check_hmc_diagnostics(mod_ref_modified)
         mod_ref_r2d2normal$fit <- mod_ref_modified
         mod_ref_r2d2normal <- rename_pars(mod_ref_r2d2normal) # note: warning message is because one concentration parameter was removed. Model object stays intact
         #store the compiled models to be used later
