@@ -32,7 +32,7 @@ predictors <- c(
   "paid",
   "activities", 
   "nursery", 
-  "higher", 
+  #"higher", 
   "internet", 
   "romantic",
   "famrel",
@@ -47,24 +47,37 @@ predictors <- c(
   "reason",
   "guardian"
 )
+
 p <- length(predictors)
 old_grades <- c("G1.x", "G2.x", "G3.x", "G1.y", "G2.y", "G3.y")
 grades <- c("G1mat","G2mat","G3mat","G1por","G2por","G3por")
 data <- merge(d1, d2, by=predictors) %>%
   rename_with(~ grades, all_of(old_grades))
-data
 
 # data pre-processing
 data <- data %>%
   mutate(across(matches("G[1-3]..."), ~na_if(.,0))) %>%
-  mutate(Gmat = rowMedians(as.matrix(dplyr::select(.,matches("G.mat"))), na.rm=TRUE),
-         Gpor = rowMedians(as.matrix(dplyr::select(.,matches("G.por"))), na.rm=TRUE))
+  mutate(
+    Gmat = rowMedians(as.matrix(dplyr::select(.,matches("G.mat"))), na.rm=TRUE),
+    Gpor = rowMedians(as.matrix(dplyr::select(.,matches("G.por"))), na.rm=TRUE))
 data_Gmat <- subset(data, is.finite(Gmat), select=c("Gmat",predictors))
 data_Gpor <- subset(data, is.finite(Gpor), select=c("Gpor",predictors))
 
 # remove those columns with only one unique value
 data_Gmat <- data_Gmat %>% dplyr::select(where(~ n_distinct(.) > 1))
 data_Gpor <- data_Gpor %>% dplyr::select(where(~ n_distinct(.) > 1))
+
+# convert character columns to factors
+data_Gpor <- as.data.frame(unclass(data_Gpor), stringsAsFactors = TRUE)
+data_Gmat <- as.data.frame(unclass(data_Gmat), stringsAsFactors = TRUE)
+
+# standardise the data
+datastd_Gmat <- data_Gmat
+Gmatbin<-apply(data_Gmat[,predictors], 2, function(x) {length(unique(x))<10})
+datastd_Gmat[,predictors[!Gmatbin]] <-scale(data_Gmat[,predictors[!Gmatbin]])
+datastd_Gpor <- data_Gpor
+Gporbin<-apply(data_Gpor[,predictors], 2, function(x) {length(unique(x))<10})
+datastd_Gpor[,predictors[!Gporbin]] <-scale(data_Gpor[,predictors[!Gporbin]])
 
 (nmat <- nrow(data_Gmat))
 (npor <- nrow(data_Gpor))
@@ -76,7 +89,7 @@ data_Gpor <- data_Gpor %>% dplyr::select(where(~ n_distinct(.) > 1))
 fit <- brm(
   formula = Gmat ~ ., 
   family = gaussian, 
-  prior = set_prior(R2D2(mean_R2 = 0.3, prec_R2 = 5, cons_D2 = 10)), 
+  prior = set_prior(R2D2(mean_R2 = 0.5, prec_R2 = 2, cons_D2 = 1)), 
   data = data_Gmat
 )
 
@@ -94,9 +107,30 @@ vs <- cv_varsel(
 # compute submodel summaries
 sel_df <- summary(vs, stats = c("elpd"))$selection
 
+# KL divergence elbow
+kl_df <- cbind(sel_df, vs$kl)
+colnames(kl_df) <- c(colnames(sel_df), "kl")
+( p_kl <- ggplot(kl_df, aes(x = size, y = kl)) +
+  geom_point() +
+  geom_line() + 
+  ylab("KL divergence") +
+  xlab("Model size") +
+  theme_bw() +
+  theme(legend.position="none") )
+# save plot to tikz
+#source("./R/aux/aux_plotting.R")
+#save_tikz_plot(
+#  p_kl, 
+#  width = 3.5,
+#  filename = "./tex/schools-kl.tex"
+#)
+
 # smoothed elpd differences
 sel_df_not_null_mod <- filter(sel_df, size != 0)
-mono.spline <- scam(diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), data = sel_df_not_null_mod)
+mono.spline <- scam(
+  diff/diff.se ~ s(size, k = 10, bs = "mpi", m = 2), 
+  data = sel_df_not_null_mod
+)
 spline_df <- tibble(
   size = sel_df_not_null_mod$size[sel_df_not_null_mod$size>0],
   mono.spline.diff = mono.spline$fit*sel_df_not_null_mod[,'diff.se'],
@@ -143,10 +177,6 @@ p_dendro <- ggplot() +
         )
 
 p_elpd_diff <- sel_df %>%
-  mutate(
-    spline.diff = spline$fit*sel_df[,'diff.se'],
-    spline.diff.se = sqrt(spline$sig2)*sel_df[,'diff.se']
-  ) %>%
   ggplot() +
   geom_pointrange(
     aes(
@@ -171,10 +201,11 @@ p_elpd_diff <- sel_df %>%
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank())
+p_elpd_diff
 
 p <- p_elpd_diff + p_dendro
 p
 
 # save plot to tikz
 source("./R/aux/aux_plotting.R")
-save_tikz_plot(p, width = 6, filename = "./tex/schools-dendro.tex")
+save_tikz_plot(p, width = 7, filename = "./tex/schools-dendro.tex")
