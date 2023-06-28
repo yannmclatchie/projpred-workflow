@@ -7,7 +7,7 @@ library(brms)
 library(projpred)
 library(dplyr)
 library(argparser)
-source('R/SBC_experiment.R')
+source('R/SBC_experiment/SBC_experiment_functions.R')
 ## ----- Define argument parser -------
 p <- arg_parser("Run SBC experiment from the paper 'Robust and efficient projection predictive inference'")
 p <- add_argument(p, "--N_sim", help="Number of SBC simulations to perform", default=300,type="numeric")
